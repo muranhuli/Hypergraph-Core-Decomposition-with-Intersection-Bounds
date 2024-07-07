@@ -159,7 +159,6 @@ void Graph::solveCore(std::unordered_map<Node *, int> &unSolvedNodes, std::vecto
     // 要设定所有节点的 core
     while (!unSolvedNodes.empty()) {
         std::queue<Node *> S;
-        // 找出所有 _degree <= k 的节点
         for (auto item : unSolvedNodes) {
             auto node = item.first;
             if (node->_degree <= k && unSolvedNodes[node] != 1) {
@@ -173,27 +172,18 @@ void Graph::solveCore(std::unordered_map<Node *, int> &unSolvedNodes, std::vecto
         //         unSolvedNodes[item] = 1;
         //     }
         // }
-        // 从 S 中取出节点，设定 core
         while (!S.empty()) {
             auto top = S.front();
             S.pop();
             top->core = k;
-            // 从 unSolvedNodes 中删除
             if (unSolvedNodes.erase(top) != 1) {
                 std::cout << "unSolvedNodes.erase(top) != 1" << std::endl;
                 throw;
             }
-            // 更新所有与 top 相连的节点的 _degree
             for (auto hyperedge : hyperedges) {
-                // 如果 hyperedge 已经设定了 core(已经被删除)，则跳过
                 if (hyperedge->core != -1) continue;
-                // 如果 hyperedge 中不包含 node，则跳过
                 if (hyperedge->nodes.find(top) == hyperedge->nodes.end()) continue;
-                // 如果 hyperedge 中包含 nodem, hyperedge 的 core 的定义是最小的 core
-                // 那么当 hyperedge 中的节点有一个被设定了 core，那么 hyperedge 的 core 也就确定了,因为它一定是最小的
                 hyperedge->core = k;
-                // 那么这条 hyperedge 中的其他节点的 _degree 就可以减一了
-                // 更新 hyperedge 中所有节点的 _degree(因为这条边已经被删除了)
                 for (auto node : hyperedge->nodes) {
                     if (node->core != -1) continue;
                     node->_degree--;
@@ -227,15 +217,12 @@ std::unordered_map<Node *, int> Graph::initCore(std::vector<HyperEdge *> &hypere
 void Graph::queryKP(int k, int p, const std::string& funcId) {
     auto start = std::chrono::steady_clock::now();
     std::vector<HyperEdge *> hyperedges(this->hyperedges);
-    // 初始化 core
     auto unSolvedNodes = initCore(hyperedges);
     std::cout << "begin kcore" << std::endl;
-    // 在 满足func(p) 的 hyperedge 中，计算 core
     auto time1 = std::chrono::steady_clock::now();
     solveCore(unSolvedNodes, hyperedges);
     auto time2 = std::chrono::steady_clock::now();
     std::cout << "kcore time = " << (time2-time1) / 1ms << "ms" << std::endl;
-    // 筛选出 满足 core >= k 的 hyperedge
     std::vector<HyperEdge *> ansEdge;
     for (auto edge : hyperedges) {
         if (edge->core >= k) {
@@ -286,10 +273,6 @@ void Graph::initMap() {
         }
     });
     Timer::measure(datasetName + " solve EtoEMap", [&](){
-        /**
-         * EtoEMap  边的邻接边的map，且知道与这条邻接边的intersection size （其实是就是构造了一个weighted line graph的邻接链表）最重要 
-         * key为边; value是边的submap；submap的key为边，value为instersection size
-        */ 
        for (auto & edge: hyperedges) {
             EtoEMap[edge] = std::unordered_map<HyperEdge*, int>();
             for (auto & node: edge->nodes) {
@@ -328,8 +311,6 @@ void Graph::initMap() {
         }
     });
     Timer::measure(datasetName + " solve EtoSMap", [&](){
-        // EtoSMap】边与其邻接边的instersection order （由上一个EtoEMap可计算）
-        // key为边; value为一个ordered intersection size list，不包含重复元素，值从大到小排列
         for (auto & edge: EtoEMap) {
             EtoSMap[edge.first] = std::vector<std::pair<HyperEdge*, int>>();
             for (auto & adjEdge: edge.second) {
@@ -498,23 +479,17 @@ void Graph::solveSCC() {
     dsu *d = new dsu(num_nodes + 100);
     std::set<Node *> dsuNode;
     std::set<HyperEdge *> dsuEdge;
-    // 现在取出来的所有边
     std::vector<HyperEdge *> allHyperEdge;
-    // 现在取出来的所有节点
     std::vector<Node *> allNode;
-    // 所有可选的 k, 从大到小排序
     std::vector<int> kSelect;
     {
         for (auto & tmp : CoreE) kSelect.push_back(tmp.first);
         std::sort(kSelect.begin(), kSelect.end(), std::greater<int>());
     }
-    // 从大到小遍历所有的 k
     for (auto & k : kSelect) {
-        // 取出所有的新加入的边
         const std::vector<HyperEdge *> &newHyperEdge_k = CoreE[k];
         for (auto & edge : newHyperEdge_k) edge->selected = true;
         std::unordered_map<int, std::vector<HyperEdge *>> newStoEMap;
-        // 计算这些边的最大的 S 值
         for (auto & edge : newHyperEdge_k) {
             for (auto & adjEdge : EtoSMap[edge]) {
                 if (adjEdge.first->selected == false) continue;
@@ -529,7 +504,6 @@ void Graph::solveSCC() {
                 newStoEMap[0].push_back(edge);
             }
         }
-        // 得到当前的所有的 S 取值
         std::vector<int> sSelect;
         for (auto & tmp : newStoEMap) sSelect.push_back(tmp.first);
         std::sort(sSelect.begin(), sSelect.end(), std::greater<int>());
@@ -544,7 +518,6 @@ void Graph::solveSCC() {
             }
         };
         auto nowTime = std::chrono::steady_clock::now();
-        // 从大到小遍历所有的 S
         for (auto & s : sSelect) {
             const auto & newHyperEdge_s = newStoEMap[s];
             for (auto & edge : newHyperEdge_s) {
@@ -557,16 +530,11 @@ void Graph::solveSCC() {
                 }
                 dsuEdge.insert(edge);
             }
-            // 如果最小的节点的 node 的 scc 小于 k，那就继续减少 s
             if (node_scc.begin()->first < k) continue;
             else {
-                // 如果所有的节点的 scc 都大于等于 k，那么就可以确定这个 s 是最小的
-                // 所有标记了 k 但是没标记 s 的边，标记 s(标记 k 的表示在 s 更大的时候已经统计过了)
                 for (auto & edge : newHyperEdge_k) {
                     if (edge->k == k && edge->s == -1) edge->s = s;
                 }
-                // 输出
-                // 计算连通块数量
                 std::set<int> sccSet;
                 for (auto & node : dsuNode) sccSet.insert(d->find(node->id));
                 int kscoreNum = sccSet.size();
@@ -588,7 +556,6 @@ void Graph::solveSCC() {
         }
     }
     file.close();
-    // 输出每个边的KS-Core信息
     file.open("/media/disk7T/liuyu/SCC/dataset/index/"+ datasetName + ".core");
     for (auto & edge : hyperedges) {
         file << edge->id << " " << edge->k << " " << edge->s << std::endl;
@@ -622,7 +589,6 @@ void Graph::analyIntersection()
 
 void Graph::calculateBaseInformation(std::ofstream &fout, int k, int s)
 {
-    // 计算联通子图数
     auto nowTime = std::chrono::steady_clock::now();
     dsu *d = new dsu(num_nodes + 100);
     std::set<Node *> dsuNode;
@@ -684,7 +650,6 @@ void Graph::calculateBaseInformation(std::ofstream &fout, int k, int s)
 
 void Graph::calculateInformation()
 {
-    // 读取kscore
     std::ifstream fin("/media/disk7T/liuyu/SCC/dataset/index/"+ datasetName + ".strongConnected.core");
     std::ofstream file("./result/strongConnectKScore/basic_information_2_"+ datasetName + ".csv");
     file<<"datasetName"<<","<<"k"<<","<<"s"<<",connectedTime,kscoreNum,"<<"overlapping"<<","<<"nodeEdgeRatio"<<","<<"intersection_density"<<std::endl;
@@ -720,11 +685,8 @@ void Graph::solveStrongConntectedSCC()
 
     std::set<Node *> dsuNode;
     std::set<HyperEdge *> dsuEdge;
-    // 现在取出来的所有边
     std::vector<HyperEdge *> allHyperEdge;
-    // 现在取出来的所有节点
     std::vector<Node *> allNode;
-    // 所有可选的 k, 从大到小排序
     std::vector<int> kSelect;
     {
         for (auto &tmp: CoreE) kSelect.push_back(tmp.first);
@@ -734,15 +696,13 @@ void Graph::solveStrongConntectedSCC()
     for (auto &edge: hyperedges)
         edge->selected = true;
 
-    // 定义超边的信息结构
     struct HyperedgeInfo
     {
-        std::multiset<int, std::greater<>> insectionOrder; // 多重集合(multiset)，按照整数值从大到小排序，存储该超边与其他超边的交集大小。
-        int selfSize;  // 超边自身的大小
-        std::multiset<int, std::greater<>> incidentSizeOrder; // 存储与该超边相邻的其他超边的大小
+        std::multiset<int, std::greater<>> insectionOrder;
+        int selfSize;
+        std::multiset<int, std::greater<>> incidentSizeOrder;
         int ID;
     };
-    // 定义超边的删除函数
     struct CompareHyperedgeInfo
     {
         bool operator()(const HyperedgeInfo &a, const HyperedgeInfo &b) const
@@ -773,7 +733,6 @@ void Graph::solveStrongConntectedSCC()
         }
     };
 
-    // 从小到大遍历所有的 k
     for (auto &k: kSelect)
     {
         std::unordered_map<int, int> deg;
@@ -791,10 +750,8 @@ void Graph::solveStrongConntectedSCC()
                 }
             }
         }
-        // 存储超边的信息合计
         std::set<HyperedgeInfo, CompareHyperedgeInfo> hyperedgeInfoSet;
         std::unordered_map<int, HyperedgeInfo> hyperedgeInfoMap;
-        // 取出所有的新加入的边
         const std::vector<HyperEdge *> &newHyperEdge_k = CoreE[k];
         for (auto & edge : newHyperEdge_k)
         {
@@ -823,8 +780,6 @@ void Graph::solveStrongConntectedSCC()
             {
                 s = std::max(s, *(hyperedgeInfo.insectionOrder.rbegin()));
             }
-            // 判断剩余的子图是不是k-core
-            // 更新剩余边的ks值
             int minDeg = INT_MAX;
             for (auto& pair: deg)
             {
@@ -845,7 +800,6 @@ void Graph::solveStrongConntectedSCC()
                         edge->s = s;
                 tmp_s = s;
             }
-            // 删除该边，更新相应的删除信息
             hyperedgeInfoSet.erase(hyperedgeInfoSet.begin());
             hyperedgeInfoMap.erase(hyperedgeInfo.ID);
             hyperedges[hyperedgeInfo.ID]->selected = false;
@@ -860,10 +814,8 @@ void Graph::solveStrongConntectedSCC()
                     deg.erase(node->id);
                 }
             }
-            // 更新子图的信息
             for(auto & edge: EtoEMap[hyperedges[hyperedgeInfo.ID]])
             {
-                // 这条边存在，并且这条边的k值等于当前的k值，才删除，因为不会影响到高层级的k
                 if (edge.first->selected and edge.first->k == k)
                 {
                     HyperedgeInfo incidentHyperedgeInfo = hyperedgeInfoMap[edge.first->id];
@@ -887,13 +839,11 @@ void Graph::solveStrongConntectedSCC()
 
             }
         }
-        // 删除所有的边k
         for (auto & edge : newHyperEdge_k)
             edge->selected = false;
     }
     file.close();
 
-    // 输出每个边的KS-Core信息
     file.open("/media/disk7T/liuyu/SCC/dataset/index/"+ datasetName + ".strongConnected.core");
     for (auto & edge : hyperedges) {
         file << edge->id << " " << edge->k << " " << edge->s << std::endl;

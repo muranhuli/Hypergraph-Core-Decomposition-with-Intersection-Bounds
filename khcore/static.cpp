@@ -90,7 +90,6 @@ struct PairHash {
     size_t operator()(const std::pair<int, int>& p) const {
         auto hash1 = std::hash<int>{}(p.first);
         auto hash2 = std::hash<int>{}(p.second);
-        // 使用位操作来混合两个哈希值
         return hash1 ^ (hash2 << 1);
     }
 };
@@ -173,7 +172,6 @@ int connectedNum(std::vector<std::vector<int>> &hyperEdge, std::vector<bool> &is
 void staticInformation(std::string dataSetName, std::vector<std::vector<int>> &hyperEdge, std::unordered_map<int, PII> &ecore)
 {
     std::fstream fout("./result/kscore-1/"+dataSetName+".csv", std::ios::out);
-    // 统计所有khcore的种类
     std::map<std::pair<int, int>, std::unordered_set<int>> khcore;
     for(auto it: ecore)
     {

@@ -3,7 +3,7 @@ project(K_SCC_core)
 
 
 set(CMAKE_CXX_STANDARD 17)
-# 启用所有警告并设置编译优化级别为最高
+
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()

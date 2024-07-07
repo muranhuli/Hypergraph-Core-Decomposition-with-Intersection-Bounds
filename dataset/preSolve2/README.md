@@ -1,3 +1,3 @@
-# 预处理 2
-预处理数据集需要删除size=1的超边，即right vertices中的degree 为1的点删除
-处理完放到../
+# Preprocessing 2
+Preprocessing the data set requires deleting the hyperedges with size=1, that is, deleting the points with degree 1 in right vertices
+After processing, put it in ../

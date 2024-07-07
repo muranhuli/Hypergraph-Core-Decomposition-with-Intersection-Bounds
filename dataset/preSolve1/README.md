@@ -1,3 +1,3 @@
-# 数据集初步处理
-二部图数据集，把left vertices当成节点，right vertices当成超边
-处理之后放到preSolve2进行第二步处理
+# Preliminary processing of the data set
+Bipartite graph data set, treat left vertices as nodes and right vertices as hyperedges
+After processing, put it into preSolve2 for the second step
