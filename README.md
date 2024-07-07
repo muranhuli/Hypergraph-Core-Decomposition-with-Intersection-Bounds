@@ -20,7 +20,7 @@ make
 - `Static` Static is the experimental procedure for analyzing subgraph properties.
 
 ## File Structure
-`lib/config.hpp` contains contains relevant configuration files.
+- `lib/config.hpp` contains contains relevant configuration files.
 - `lib/graph.hpp` contains the implementation of the algorithm of the paper.
 - `lib/union.cpp` contains the implementation code of the union check.
 - `main.cpp` contains the main function of the paper.
