@@ -17,7 +17,7 @@ make
 3. Executable file introduction
 - `K_SCC_core` is the experimental procedure of this paper.
 - `KH_Core` is the experimental procedure for the comparative experiment khcore.
-- `Static` Static is the experimental procedure for analyzing subgraph properties.
+- `Static` is the experimental procedure for analyzing subgraph properties.
 
 ## File Structure
 - `lib/config.hpp` contains contains relevant configuration files.
