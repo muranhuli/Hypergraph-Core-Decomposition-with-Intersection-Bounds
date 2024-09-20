@@ -18,12 +18,12 @@ int main(int argc, char **argv) {
     Graph *graph = new Graph(datasetId);
     graph->inputMap();
     // graph->initMap();
+    // graph->storeMap();
     graph->loadMap();
     // graph->analyIntersection();
     // graph->solveSCC();
-    graph->solveStrongConntectedSCC();
-    graph->calculateInformation();
+    // graph->solveStrongConntectedSCC();
+    // graph->calculateInformation();
     std::cout<<dataset<<" has finished!"<<std::endl;
     delete graph;
-    return 0;
 }

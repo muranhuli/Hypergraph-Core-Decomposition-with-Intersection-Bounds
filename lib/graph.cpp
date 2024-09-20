@@ -111,7 +111,7 @@ Graph::~Graph() {
 void Graph::inputMap() {
     std::cout << "===========begin inputMap============" << std::endl;
     std::ifstream file;
-    file.open("/media/disk7T/liuyu/SCC/dataset/" + datasetName);
+    file.open("/home/liuyu/data/SCC/dataset/" + datasetName);
     if (!file) {
         std::cerr << "Unable to open file" << std::endl;
         throw;
@@ -324,7 +324,7 @@ void Graph::initMap() {
     storeMap();
 }
 void Graph::storeMap() {
-    std::ofstream file("/media/disk7T/liuyu/SCC/dataset/index/" + datasetName + ".pre");
+    std::ofstream file("/home/liuyu/data/SCC/datasetindex/" + datasetName + ".pre");
     // EtoVMap
     file << EtoVMap.size() << "\n";
     for (auto & edge: EtoVMap) {
@@ -387,7 +387,7 @@ void Graph::storeMap() {
     file.close();
 }
 void Graph::loadMap() {
-    std::ifstream file("/media/disk7T/liuyu/SCC/dataset/index/" + datasetName + ".pre");
+    std::ifstream file("/home/liuyu/data/SCC/datasetindex/" + datasetName + ".pre");
     // load EtoVMap
     int size;
     file >> size;
@@ -473,7 +473,7 @@ void Graph::loadMap() {
 
 void Graph::solveSCC() {
     // outputFile
-    std::ofstream file("./result/kscore/basic_information_1_"+ datasetName + ".csv");
+    std::ofstream file("./result/WeakKSCore/basic_information_1_"+ datasetName + ".csv");
     file << "datasetName" << "," << "k" << "," << "s" << "," << "time " << "us," << "kscoreNum" << std::endl;
     // bcj
     dsu *d = new dsu(num_nodes + 100);
@@ -556,7 +556,7 @@ void Graph::solveSCC() {
         }
     }
     file.close();
-    file.open("/media/disk7T/liuyu/SCC/dataset/index/"+ datasetName + ".core");
+    file.open("/home/liuyu/data/SCC/dataset/index/"+ datasetName + ".weak.core");
     for (auto & edge : hyperedges) {
         file << edge->id << " " << edge->k << " " << edge->s << std::endl;
     }
@@ -578,11 +578,11 @@ void Graph::analyIntersection()
     }
     int tmp=0;
 
-    std::ofstream fout("result/"+datasetName+".txt");
-    fout << "intersection size\t#intersections\tpercentage\t#cumulative percentage"<<std::endl;
+    std::ofstream fout("./result/"+datasetName+".csv");
+    fout << "intersection size,intersections,percentage,cumulative percentage"<<std::endl;
     for (auto &pair: intersection) {
         tmp+=pair.second;
-        fout << pair.first << "\t" << pair.second <<"\t"<< double(pair.second*1.0)/double(sum)<<"\t"<<double(tmp*1.0)/double(sum)<<std::endl;
+        fout << pair.first << "," << pair.second <<","<< double(pair.second*1.0)/double(sum)<<","<<double(tmp*1.0)/double(sum)<<std::endl;
     }
     fout.close();
 }
@@ -650,8 +650,10 @@ void Graph::calculateBaseInformation(std::ofstream &fout, int k, int s)
 
 void Graph::calculateInformation()
 {
-    std::ifstream fin("/media/disk7T/liuyu/SCC/dataset/index/"+ datasetName + ".strongConnected.core");
-    std::ofstream file("./result/strongConnectKScore/basic_information_2_"+ datasetName + ".csv");
+    // std::ifstream fin("/home/liuyu/data/SCC/dataset/index/"+ datasetName + ".weak.core");
+    // std::ofstream file("./result/WeakKSCore/basic_information_2_"+ datasetName + ".csv");
+    std::ifstream fin("/home/liuyu/data/SCC/dataset/index/"+ datasetName + ".strongly.core");
+    std::ofstream file("./result/StronglyKSCore/basic_information_2_"+ datasetName + ".csv");
     file<<"datasetName"<<","<<"k"<<","<<"s"<<",connectedTime,kscoreNum,"<<"overlapping"<<","<<"nodeEdgeRatio"<<","<<"intersection_density"<<std::endl;
     int a,b,c;
     std::map<std::pair<int, int>, std::unordered_set<int>> core;
@@ -680,7 +682,7 @@ void Graph::calculateInformation()
 
 void Graph::solveStrongConntectedSCC()
 {
-    std::ofstream file("./result/strongConnectKScore/basic_information_1_"+ datasetName + ".csv");
+    std::ofstream file("./result/StronglyKScore/basic_information_1_"+ datasetName + ".csv");
     file << "datasetName" << "," << "k" << "," << "s" << "," << "time " << "us"<< std::endl;
 
     std::set<Node *> dsuNode;
@@ -844,7 +846,7 @@ void Graph::solveStrongConntectedSCC()
     }
     file.close();
 
-    file.open("/media/disk7T/liuyu/SCC/dataset/index/"+ datasetName + ".strongConnected.core");
+    file.open("/home/liuyu/data/SCC/dataset/index/"+ datasetName + ".strongly.core");
     for (auto & edge : hyperedges) {
         file << edge->id << " " << edge->k << " " << edge->s << std::endl;
     }

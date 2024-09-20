@@ -25,7 +25,7 @@ using namespace std::chrono;
 
 // ActorMovies Flickr Genre Github IMDB Teams TVTropes Wikipedia Walmart
 std::vector<std::string> datasetNames = {"ActorMovies", "Flickr", "Genre", "Github", "IMDB", "Teams", "TVTropes", "Wikipedia", "Walmart",
-                                         "Wikipedia-0.2", "Wikipedia-0.4", "Wikipedia-0.6", "Wikipedia-0.8"};
+                                         "Wikipedia-0.2", "Wikipedia-0.4", "Wikipedia-0.6", "Wikipedia-0.8", "CoDB", "CoGe", "StAn"};
 
 std::map<std::string, int> dataset_id = {
     {"ActorMovies", 0},
@@ -40,7 +40,10 @@ std::map<std::string, int> dataset_id = {
     {"Wikipedia-0.2", 9},
     {"Wikipedia-0.4", 10},
     {"Wikipedia-0.6", 11},
-    {"Wikipedia-0.8", 12}
+    {"Wikipedia-0.8", 12},
+    {"CoDB", 13},
+    {"CoGe", 14},
+    {"StAn", 15},
 };
 
 template<typename T>
