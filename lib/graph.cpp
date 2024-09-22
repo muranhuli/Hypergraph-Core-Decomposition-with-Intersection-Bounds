@@ -324,7 +324,7 @@ void Graph::initMap() {
     storeMap();
 }
 void Graph::storeMap() {
-    std::ofstream file("/home/liuyu/data/SCC/datasetindex/" + datasetName + ".pre");
+    std::ofstream file("/home/liuyu/data/SCC/dataset/index/" + datasetName + ".pre");
     // EtoVMap
     file << EtoVMap.size() << "\n";
     for (auto & edge: EtoVMap) {
@@ -387,7 +387,7 @@ void Graph::storeMap() {
     file.close();
 }
 void Graph::loadMap() {
-    std::ifstream file("/home/liuyu/data/SCC/datasetindex/" + datasetName + ".pre");
+    std::ifstream file("/home/liuyu/data/SCC/dataset/index/" + datasetName + ".pre");
     // load EtoVMap
     int size;
     file >> size;
